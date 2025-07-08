@@ -1,14 +1,13 @@
-import React from "react";
-import PokedexPage from "./pages/PokedexPage";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import AskPage from "./pages/AskPage";
 
-function App() {
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <h1 className="text-4xl text-center font-bold py-4">Pokédex Inteligente</h1>
-      <PokedexPage />
-    </div>
-  );
-}
+<Router>
+  <Routes>
+    <Route path="/" element={<HomePage />} />
+    <Route path="/ask" element={<AskPage />} />
+  </Routes>
+</Router>
 
 export default App;
 // This code defines the main App component for a React application that displays a Pokédex page.
