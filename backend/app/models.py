@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from .database import Base
+from .db import Base
 
 class Pokemon(Base):
     __tablename__ = "pokemons"
@@ -11,4 +11,6 @@ class Pokemon(Base):
     attack = Column(Integer)
     defense = Column(Integer)
     speed = Column(Integer)
+    generation = Column(String)
+    description = Column(String)
     image_url = Column(String)

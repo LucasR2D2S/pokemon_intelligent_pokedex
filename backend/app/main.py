@@ -2,9 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from . import models, schemas, crud
-from .database import engine, get_db
-from .llm_assistant import ask_llm
-import json
+from .db import engine, get_db
+from backend.app.rag import rag_pokemon_context
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -12,7 +11,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000"],
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,13 +36,10 @@ def read_pokemon(pokemon_id: int, db: Session = Depends(get_db)):
 def read_pokemons(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.get_pokemons(db, skip=skip, limit=limit)
 
-@app.post("/ask", response_model=str)
+@app.post("/ask")
 async def ask_pokedex(request: Request):
-    # Recebe a pergunta do usuário e retorna a resposta do LLM.
-    data = await request.json()
-    question = data.get("question")
-    if not question:
-        raise HTTPException(status_code=400, detail="Pergunta não fornecida.")
-    
-    answer = ask_llm(question)
-    return {"answer": answer}
+    # Alterado para chamar RAG
+    try:
+        return {"answer": rag_pokemon_context(answer)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao processar a pergunta: {str(e)}")
