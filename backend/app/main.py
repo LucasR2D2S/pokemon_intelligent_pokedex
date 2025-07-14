@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from . import models, schemas, crud
 from .db import engine, get_db
 from app.rag.query import query_pokemon_index
+from rag.rag import answer_question_with_faiss
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -37,31 +38,15 @@ def read_pokemons(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     return crud.get_pokemons(db, skip=skip, limit=limit)
 
 @app.post("/ask")
-def ask_question(payload: dict):
-    question = payload.get("question", "")
+async def ask_question(request: Request):
+    data = await request.json()
+    question = data.get("question", "")
 
-    # Busca contexto relevante com FAISS
-    context_docs = query_pokemon_index(question)
-    context_text = "\n\n".join([doc.page_content for doc in context_docs])
+    if not question:
+        raise HTTPException(status_code=400, detail="Pergunta não fornecida")
 
-    # Monta o prompt com contexto real
-    full_prompt = f"""Você é um especialista em Pokemon, deve responder perguntas como uma Pokédex.
-
-    Utilize o seguinte contexto de base pra responder à pergunta:
-    {context_text}
-
-    Para gerar a pergunta, não imagine ou crie informações, apenas use o contexto fornecido.
-
-    Pergunta: {question}
-    Resposta:"""
-    # Chama o LLM com o prompt completo
     try:
-        response = payload.post(
-            "http://localhost:11436/api/generate",
-            json={"model": "gemma3:4b", "prompt": full_prompt}
-        )
-        response.raise_for_status()
-        content = response.json()["response"]
-        return {"answer": content}
+        answer = answer_question_with_faiss(question)
+        return {"answer": answer}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao se comunicar com o LLM: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro ao consultar FAISS: {str(e)}")

@@ -1,14 +1,15 @@
 from pydantic import BaseModel
+from typing import List, Dict
 
-class Pokemon(BaseModel):
+# Criando schema do objeto Pokemon
+class PokemonCreate(BaseModel):
     id: int
     name: str
-    type: str
-    hp: int
-    attack: int
-    defense: int
-    speed: int
-    image_url: str
+    types: List[str]
+    stats: List[Dict[str, int]]
+    generation: str
+    descriptions: str
 
+class Pokemon(PokemonCreate):
     class Config:
         orm_mode = True

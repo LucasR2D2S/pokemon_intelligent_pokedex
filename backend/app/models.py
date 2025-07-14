@@ -1,16 +1,13 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, JSON
 from .db import Base
 
+# Criando modelo do objeto Pokemon
 class Pokemon(Base):
-    __tablename__ = "pokemons"
+    __tablename__ = "pokemon"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    type = Column(String)
-    hp = Column(Integer)
-    attack = Column(Integer)
-    defense = Column(Integer)
-    speed = Column(Integer)
+    name = Column(String, unique=True, index=True)
+    types = Column(JSON)
+    stats = Column(JSON)
     generation = Column(String)
-    description = Column(String)
-    image_url = Column(String)
+    descriptions = Column(String)
