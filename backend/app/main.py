@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from . import models, schemas, crud
 from .db import engine, get_db
-from backend.app.rag import rag_pokemon_context
+from app.rag.query import query_pokemon_index
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -37,9 +37,31 @@ def read_pokemons(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     return crud.get_pokemons(db, skip=skip, limit=limit)
 
 @app.post("/ask")
-async def ask_pokedex(request: Request):
-    # Alterado para chamar RAG
+def ask_question(payload: dict):
+    question = payload.get("question", "")
+
+    # Busca contexto relevante com FAISS
+    context_docs = query_pokemon_index(question)
+    context_text = "\n\n".join([doc.page_content for doc in context_docs])
+
+    # Monta o prompt com contexto real
+    full_prompt = f"""Você é um especialista em Pokemon, deve responder perguntas como uma Pokédex.
+
+    Utilize o seguinte contexto de base pra responder à pergunta:
+    {context_text}
+
+    Para gerar a pergunta, não imagine ou crie informações, apenas use o contexto fornecido.
+
+    Pergunta: {question}
+    Resposta:"""
+    # Chama o LLM com o prompt completo
     try:
-        return {"answer": rag_pokemon_context(answer)}
+        response = payload.post(
+            "http://localhost:11436/api/generate",
+            json={"model": "gemma3:4b", "prompt": full_prompt}
+        )
+        response.raise_for_status()
+        content = response.json()["response"]
+        return {"answer": content}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao processar a pergunta: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao se comunicar com o LLM: {e}")

@@ -1,22 +1,42 @@
+import os
+import json
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import OllamaEmbeddings
+from langchain.schema import Document
+from ..db import SessionLocal
 from sqlalchemy.orm import Session
-from .llm import ask_llm
-from .crud import search_pokemon_context
-from . import crud
+from ..llm import ask_llm
+from ..crud import search_pokemon_context
+from .. import crud
 
-def rag_pokemon_context(question:str) -> str:
-    # Consulta base de dados para obter informações sobre os Pokémon e levar contexto ao LLM
-    context = search_pokemon_context(question)
+def load_pokemon_documents():
+    db = SessionLocal()
+    pokemons = crud.get_all_pokemons(db)
+    docs = []
 
-    prompt = f"""
-    Você é um assistente especialista em Pokemon, e vai agir como uma Pokedex, Voce ira receber perguntas sobre todos os pokemons existentes e perguntas como <Qual o nome daquele pokemon com o rabo pegando fogo?> \
-    e sua resposta seria por exemplo <Você deve estar pensando no Charmander! Ele é um dos Pokémon iniciais do tipo Fogo e é famoso pela chama em sua cauda, que mostra a força de sua vida. \
-    Voce precisa basear sua resposta no seguinte contexto, e nao deve criar informacoes, bases no dados reais a seguir:\n\n{context}\n\n
-    Pergunta: {question}\n\n
-    Resposta:"""
-    return ask_llm(prompt)
+    for pokemon in pokemons:
+        content = (
+            f"Nome: {pokemon.name}\n"
+            f"Tipo: {pokemon.type}\n"
+            f"HP: {pokemon.hp}, Ataque: {pokemon.attack}, Defesa: {pokemon.defense}, Velocidade: {pokemon.speed}\n"
+            f"Geração: {pokemon.generation}\n"
+            f"Descrição: {pokemon.description or ''}"
+        )
+        docs.append(Document(page_content=content, metadata={"name": pokemon.name, "description": pokemon.description}))
+    
+    return docs
+
+def build_index():
+    docs = load_pokemon_documents()
+    embeddings = OllamaEmbeddings(model="gemma3:4b", base_url="http://localhost:11436")
+    db = FAISS.from_documents(docs, embedding=embeddings)
+    db.save_local("app/rag/vectorstore/faiss_index")
+
+if __name__ == "__main__":
+    build_index()
       
 
-# CAVALO
+# Horse
 # _,,)\.~,,._
 # (( `  ``)\))),,_
 #  |      \ ''((\)))),,_
