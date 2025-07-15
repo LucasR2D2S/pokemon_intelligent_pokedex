@@ -12,10 +12,18 @@ def build_index():
     global index
     db = SessionLocal()
     pokemons = db.query(Pokemon).all()
-    docs = [
-        Document(page_content=f"{p.name}: {p.types}, Geração {p.generation}. {p.descriptions}", metadata={"id": p.id})
-        for p in pokemons
-    ]
+    docs = []
+
+    # Formatando documento para melhor a resposta
+    for p in pokemons:
+        doc_text = (
+            f"Nome: {p.name}\n"
+            f"Tipos: {', '.join(p.types)}\n"
+            f"Geração: {p.generation}\n"
+            f"Estatísticas: {', '.join(str(s) for s in p.stats)}\n\n"
+            f"Descrição Completa:\n{p.descriptions}"
+        )
+        docs.append(Document(page_content=doc_text, metadata={"id": p.id}))
     index = FAISS.from_documents(docs, embedding)
 
 
