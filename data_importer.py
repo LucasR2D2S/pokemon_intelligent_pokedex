@@ -1,5 +1,5 @@
 import csv
-from .backend.app import models
+from .backend.database import models
 
 def import_pokemon_from_csv(db, csv_path):
     with open(csv_path, encoding="utf-8") as file:
