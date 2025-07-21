@@ -6,7 +6,11 @@ class PokemonBase(BaseModel):
     types: List[str]
     stats: List[int]
     generation: str
-    descriptions: List[str]
+    physical_characteristics: str
+    behavior: str
+    habitat: str
+    general_description: str
+    full_description: str
 
 class Pokemon(PokemonBase):
     id: int
