@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, JSON
-from database.db import Base
+from sqlalchemy import Column, Integer, String, JSON, Text
+from .db import Base
 
 class Pokemon(Base):
     __tablename__ = "pokemons"

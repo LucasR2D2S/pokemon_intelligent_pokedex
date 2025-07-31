@@ -2,11 +2,10 @@ import requests
 import os
 import time
 import json
-import requests
-from database.db import SessionLocal
-from database.models import Pokemon
+from backend.database.db import SessionLocal, Base, engine
+from .models import Pokemon
 from backend.utils.bulbapedia import scrape_biology_section
-from utils.description_parser import parse_biology_description
+from backend.utils.description_parser import parse_biology_description
 
 # Configuração de sessão HTTP
 session_http = requests.Session()
@@ -16,6 +15,8 @@ session_http.headers.update({
 
 CACHE_DIR = "cache"
 os.makedirs(CACHE_DIR, exist_ok=True)
+
+Base.metadata.create_all(bind=engine)
 
 
 def get_cached_json(url, cache_name):
@@ -38,6 +39,7 @@ def fetch_pokemon_data(start: int, end: int):
             species = get_cached_json(poke["species"]["url"], f"species_{i}.json")
             generation = get_cached_json(species["generation"]["url"], f"generation_{i}.json")
             wiki_biology = scrape_biology_section(poke["name"])
+            name = poke["name"].capitalize()
 
             # Dividir descrição da Bulbapedia
             physical, behavior, habitat = parse_biology_description(wiki_biology)
@@ -72,6 +74,6 @@ def fetch_pokemon_data(start: int, end: int):
             # Respeitar limite da PokéAPI
             time.sleep(0.6)
             session.commit()
-            print("Banco de dados populado com sucesso!")
+            print(f"Banco de dados populado com sucesso, com pokemon {name}!")
     finally:
         session.close()

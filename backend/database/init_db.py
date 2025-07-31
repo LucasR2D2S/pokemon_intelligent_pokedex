@@ -1,4 +1,4 @@
-from database.loader import fetch_pokemon_data
+from .loader import fetch_pokemon_data
 
 if __name__ == "__main__":
     try:
