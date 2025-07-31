@@ -1,0 +1,29 @@
+# Ambientes Python
+__pycache__/
+*.py[cod]
+*.env
+.venv/
+venv/
+env/
+
+# Banco de dados local
+*.sqlite3
+*.db
+
+# VSCode e outros editores
+.vscode/
+.idea/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Cache e logs
+*.log
+.cache/
+__pycache__/
+
+# Node (front)
+node_modules/
+dist/
+.env.local

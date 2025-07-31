@@ -72,5 +72,6 @@ def fetch_pokemon_data(start: int, end: int):
             # Respeitar limite da PokéAPI
             time.sleep(0.6)
             session.commit()
+            print("Banco de dados populado com sucesso!")
     finally:
         session.close()
