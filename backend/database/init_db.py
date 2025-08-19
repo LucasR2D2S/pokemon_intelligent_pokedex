@@ -2,7 +2,7 @@ from .loader import fetch_pokemon_data
 
 if __name__ == "__main__":
     try:
-        fetch_pokemon_data(1, 151)  # Carrega os primeiros 151 Pokémon
+        fetch_pokemon_data(1, 33)  # Carrega os primeiros 151 Pokémon
         print("Pokémon data has been successfully loaded into the database.")
     except Exception as e:
         print(f"Error loading Pokémon data: {e}")
