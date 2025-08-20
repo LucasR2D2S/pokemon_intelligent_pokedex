@@ -39,7 +39,7 @@ class FAISSManager:
                         "types": pokemon.types,
                         "generation": pokemon.generation,
                         "stats": pokemon.stats,
-                        "descriptions": pokemon.descriptions
+                        "full_description": pokemon.full_description
                     }
                 ))
 
@@ -73,7 +73,7 @@ class FAISSManager:
             f"Name: {pokemon.name}\n"
             f"Types: {', '.join(pokemon.types) if pokemon.types else 'Unknown'}\n"
             f"Generation: {pokemon.generation}\n"
-            f"Stats: {', '.join(pokemon.stats) if pokemon.stats else 'Unknown'}\n"
+            f"Stats: {', '.join(map(str, pokemon.stats)) if pokemon.stats else 'Unknown'}\n"
             f"Description:\n{full_description}"
         )
     

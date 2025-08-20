@@ -58,13 +58,12 @@ async def ask(ask_input: AskInput):
             }
         )
 
-        data = await ask_input.json()
-        question = data.get("question")
+        question = ask_input.question
         
         # Executa função síncrona em threadpool para evitar travamento
         resposta = await run_in_threadpool(ask_assistant, question)
         
-        if not resposta or resposta.stip() == "":
+        if not resposta or resposta.strip() == "":
             raise QuestionProcessingError("Resposta do assistente vazia")
         
         processing_time = time.time() - start_time

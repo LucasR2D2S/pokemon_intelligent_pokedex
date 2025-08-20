@@ -1,13 +1,13 @@
 import requests
-from core.config import OLLAMA_HOST, MODEL_NAME
+from core.config import settings
 import json
 
 def ask_llm(prompt: str) -> str:
     try:
         full_text = ""
         with requests.post(
-            f"{OLLAMA_HOST}/api/generate",
-            json={"model": MODEL_NAME, "prompt": prompt, "stream": True},
+            f"{settings.ollama_host}/api/generate",
+            json={"model": settings.embedding_model, "prompt": prompt, "stream": True},
             stream=True,
             timeout=60  # segurança contra travamentos
         ) as response:

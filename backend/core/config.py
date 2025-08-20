@@ -63,7 +63,7 @@ class Settings(BaseSettings):
         description="Comprimento máximo permitido para perguntas"
     )
 
-    vector_store_k: str = Field(
+    vector_store_k: int = Field(
         default=3,
         description="Número de documentos similares a serem recuperados"
     )
