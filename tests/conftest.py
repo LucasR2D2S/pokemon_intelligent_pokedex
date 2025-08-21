@@ -1,6 +1,31 @@
 import pytest
+import asyncio
+from typing import AsyncGenerator, Generator
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+
+# Import your app components
 from backend.main import app
+from backend.database.db import Base, get_db
+from backend.database.models import Pokemon
+from backend.core.config import settings
+
+TEST_DATABASE_URL = "sqlite:///./test_pokedex.db"
+
+test_engine = create_engine(
+    TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+    acho=False
+)
+
+TestingSessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=test_engine
+)
 
 @pytest.fixture
 def mock_data():
